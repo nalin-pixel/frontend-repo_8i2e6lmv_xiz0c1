@@ -1,28 +1,36 @@
-import { useState } from 'react'
+import React, { useEffect, useState } from 'react';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
+import ShipsModule from './components/ShipsModule';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [view, setView] = useState('dashboard');
+
+  useEffect(()=>{
+    const u = localStorage.getItem('jm_user');
+    if(u){ setUser(JSON.parse(u)); }
+  },[]);
+
+  if(!user){
+    return <Login onLogin={setUser} />;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
+    <div className="min-h-screen bg-gradient-to-b from-[#0b1324] to-[#0e1730] flex">
+      <Sidebar current={view} onChange={setView} />
+      <main className="flex-1 min-w-0">
+        <Header user={user} onLogout={() => { localStorage.removeItem('jm_user'); setUser(null); }} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          {view === 'dashboard' && <Dashboard />}
+          {view === 'ships' && <ShipsModule />}
+          {view !== 'dashboard' && view !== 'ships' && (
+            <div className="text-white/70">This module is part of the full system. For demo, explore Dashboard and Ship Intelligence.</div>
+          )}
         </div>
-      </div>
+      </main>
     </div>
-  )
+  );
 }
-
-export default App
